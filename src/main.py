@@ -1,15 +1,19 @@
 import asyncio
-from src.sockets.socket_subscriber import do_nlp_subscribe
-from src.sockets.socket_publisher import do_nlp_publish
+from src.sockets.subscriber import Subscriber
+from src.db.connection import DatabaseSession
 from src.processing.processing import process
+from loguru import logger
 
 async def main():
+    logger.debug('Start serving')
+    subscriber = Subscriber()
     while True:
-        raw_data = await do_nlp_subscribe()
-        loop = asyncio.get_running_loop()
-        data = await loop.run_in_executor(None, process(raw_data))
-        await do_nlp_publish(data)
+        await subscriber.synchronize()
+        with DatabaseSession() as db:
+            await subscriber.receive_json_to_db(db=db)
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, process(db=db))
+
 
 if __name__ == "__main__":
-    asyncio.start_server()
     asyncio.run(main())

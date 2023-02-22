@@ -1,7 +1,7 @@
 import datetime
 from loguru import logger
 from sqlalchemy.orm import Session
-from src.db.session import NewsTitle
+from ..db.session import NewsTitle
 from sqlalchemy import insert, text
 from sqlalchemy.exc import SQLAlchemyError
 from typing import Mapping

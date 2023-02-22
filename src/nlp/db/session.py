@@ -1,15 +1,17 @@
 import datetime
 import uuid
+import os
 
 from sqlalchemy import create_engine, text, func
 from sqlalchemy.types import Date, UUID
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 from collections.abc import Mapping
 from sqlalchemy.dialects.postgresql import JSONB
-from src.db.settings import *
 
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@localhost:5432/{DB_NAME}"
+LOCAL_DATABASE_URL = 'postgresql://postgres:postgres@db:5432/news_title'
+SQLALCHEMY_DATABASE_URL = os.environ.get('DATABASE_URL', default=LOCAL_DATABASE_URL)
+
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autoflush=False, bind=engine)
 

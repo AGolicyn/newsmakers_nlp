@@ -1,8 +1,8 @@
 import pytest
 
-from src.processing.processing import *
-from src.crud.title import *
-from src.tests.test_processing.data_garbage import *
+from ...processing.processing import *
+from ...crud.title import *
+from .data_garbage import *
 
 def test_entity_extractor_for_en_language(db: Session, get_prepared_en_data):
     proc = Processor(country='USA')

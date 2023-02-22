@@ -3,7 +3,7 @@ from uuid import UUID
 
 import pytest
 
-from src.crud import title, cons
+from ..crud import title, cons
 from sqlalchemy.orm import Session
 
 @pytest.mark.skip()
@@ -17,7 +17,7 @@ def test_insert_with_invalid_lang_type(db: Session):
     }
 
     # with pytest.raises(SQLAlchemyError):
-    try_to_insert = title.insert_daily_result(db=db, entities=day_result, lang=1)
+    try_to_insert = cons.insert_daily_result(db=db, entities=day_result, lang='')
     assert try_to_insert.lang == False
 
 

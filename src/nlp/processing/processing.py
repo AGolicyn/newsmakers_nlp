@@ -1,10 +1,10 @@
 import datetime
 from loguru import logger
 from sqlalchemy.engine.cursor import CursorResult
-from src.processing import word_cloud
-from src.crud import title, cons
+from .word_cloud import build_wordcloud
+from ..crud import title, cons
 from sqlalchemy.orm import Session
-from src.processing.settings import *
+from .settings import *
 
 
 def process(db: Session):
@@ -62,7 +62,7 @@ class Processor:
                           date: datetime.date):
         """Для каждой сущности и имени сущности считаем количество повторений,
          -> строим облако слов и выделяем 10 самых распространенных"""
-        word_cloud.build_wordcloud(entity=entity, frequencies=frequencies, date=date, lang=self.lang, country=self.country)
+        build_wordcloud(entity=entity, frequencies=frequencies, date=date, lang=self.lang, country=self.country)
         return self._most_common_entity_names(entity=entity, frequencies=frequencies)
 
     @staticmethod
@@ -92,11 +92,11 @@ class Processor:
             yield entity, frequencies, date
 
 
-from src.db.connection import DatabaseSession
+# from nlp.db.connection import DatabaseSession
 
-with DatabaseSession() as db:
-    process(db)
-    pass
+# with DatabaseSession() as db:
+#     process(db)
+#     pass
     # process_daily_data(db=db, date=day)
     # do_some_shit(db=db, date=day)
     # get_daily_results(db=db, date=day, country='Russia')

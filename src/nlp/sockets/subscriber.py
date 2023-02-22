@@ -1,14 +1,15 @@
 """Receiving data from Spider-service"""
 import json
 import asyncio
+import os
+
 import zmq
 from loguru import logger
 from zmq.asyncio import Context
 from contextlib import suppress
-from src.crud.title import insert_title
+from nlp.crud.title import insert_title
 from sqlalchemy.orm import Session
 
-from src.sockets.settings.settings import *
 
 context = Context()
 
@@ -16,14 +17,15 @@ context = Context()
 class Subscriber:
     def __init__(self):
         self.subscriber = context.socket(zmq.SUB)
-        self.subscriber.connect(SPIDER_PUBLISHER_ADDRESS)
+        self.subscriber.connect(os.environ.get("SPIDER_PUBLISHER_ADDRESS"))
         self.subscriber.setsockopt(zmq.SUBSCRIBE, b'')
 
         self.syncservice = context.socket(zmq.REP)
-        self.syncservice.bind("tcp://*:5562")
+        self.syncservice.bind(os.environ.get("SYNCSERVER_ADDRESS"))
 
     async def synchronize(self):
-        logger.debug('Subscriber waiting for synchronizing request on 5562..')
+        logger.debug('Subscriber waiting for synchronizing request '
+                     f'on {os.environ.get("SYNCSERVER_ADDRESS")}..')
         await self.syncservice.recv()
         await self.syncservice.send(b'')
         logger.debug('Subscriber and publisher successfully synchronized')
@@ -36,6 +38,7 @@ class Subscriber:
                     msg = await self.subscriber.recv_json()
                     if 'END' in msg:
                         break
+                    logger.debug(f"INCOMING MESSAGE: {msg}")
                     insert_title(db, msg)
                 except json.decoder.JSONDecodeError as e:
                     logger.error(e)

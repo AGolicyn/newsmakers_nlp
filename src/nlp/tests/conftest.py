@@ -1,9 +1,10 @@
 import pytest
-from src.db.session import *
-from src.crud.title import *
-from src.tests.test_processing.data_garbage import *
+from ..db.session import *
+from ..crud.title import *
+from .test_processing.data_garbage import *
 
-TEST_SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@localhost:5432/{TEST_DB_NAME}"
+TEST_SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:postgres@db:5432/news_title"
+
 engine = create_engine(TEST_SQLALCHEMY_DATABASE_URL)
 TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base.metadata.create_all(bind=engine)

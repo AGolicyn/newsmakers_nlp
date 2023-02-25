@@ -30,7 +30,7 @@ def build_wordcloud(entity: str,
         prefer_horizontal=0.9,
     )
     wordcloud.generate_from_frequencies(frequencies=frequencies)
-    p = pathlib.Path(f'./images/{date}/{country}/')
+    p = pathlib.Path(f'/media/images/{date.year}/{date.month}/{date.day}/{country}/')
     p.mkdir(parents=True, exist_ok=True)
-    wordcloud.to_file(f'images/{date}/{country}/{entity}.png')
+    wordcloud.to_file(str(p.joinpath(f'{entity}.webp')))
     logger.debug(f'Stored to {p}')

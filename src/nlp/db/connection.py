@@ -1,5 +1,5 @@
 from loguru import logger
-from ..db.session import SessionLocal
+from nlp.db.session import SessionLocal
 
 class DatabaseSession:
     def __enter__(self):

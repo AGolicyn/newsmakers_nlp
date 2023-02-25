@@ -3,23 +3,8 @@ from uuid import UUID
 
 import pytest
 
-from ..crud import title, cons
+from nlp.crud import title, cons
 from sqlalchemy.orm import Session
-
-@pytest.mark.skip()
-def test_insert_with_invalid_lang_type(db: Session):
-    day_result = {
-        'Germany': {
-            'LOC': {
-                'Achtung!': ["1234567"]
-            }
-        }
-    }
-
-    # with pytest.raises(SQLAlchemyError):
-    try_to_insert = cons.insert_daily_result(db=db, entities=day_result, lang='')
-    assert try_to_insert.lang == False
-
 
 def test_insert_processed_data(db: Session):
     day_result = {
@@ -39,9 +24,8 @@ def test_insert_processed_data(db: Session):
         }
     }
     today = datetime.date.today()
-    inserted_data = cons.insert_daily_result(db=db, entities=day_result, lang='RU')
+    inserted_data = cons.insert_daily_result(db=db, entities=day_result)
 
-    assert inserted_data.lang == 'RU'
     assert inserted_data.date == today
     assert 'Russia' in inserted_data.entities
     assert 'LOC' in inserted_data.entities['Russia']

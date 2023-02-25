@@ -1,16 +1,15 @@
 import datetime
 from loguru import logger
 from sqlalchemy.orm import Session
-from ..db.session import ConsolidatedData
+from nlp.db.session import ConsolidatedData
 from sqlalchemy import insert, text
 from sqlalchemy.exc import SQLAlchemyError
 from typing import Mapping
 
-def insert_daily_result(db: Session, entities: Mapping, lang: str):
+def insert_daily_result(db: Session, entities: Mapping):
     try:
         new_res = db.execute(insert(ConsolidatedData)
-                             .values(entities=entities,
-                                     lang=lang)
+                             .values(entities=entities)
                              .returning(ConsolidatedData)
                              ).scalar_one_or_none()
         db.commit()

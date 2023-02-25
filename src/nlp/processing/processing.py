@@ -2,7 +2,7 @@ import datetime
 from loguru import logger
 from sqlalchemy.engine.cursor import CursorResult
 from .word_cloud import build_wordcloud
-from ..crud import title, cons
+from nlp.crud import title, cons
 from sqlalchemy.orm import Session
 from .settings import *
 
@@ -92,7 +92,7 @@ class Processor:
             yield entity, frequencies, date
 
 
-# from nlp.db.connection import DatabaseSession
+# from nlp_data.db.connection import DatabaseSession
 
 # with DatabaseSession() as db:
 #     process(db)

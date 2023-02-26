@@ -23,7 +23,7 @@ def insert_title(db: Session, title: Mapping):
 
 
 def get_daily_titles(db: Session, date: datetime.date = datetime.date.today()):
-    titles = db.execute(text("SELECT *"
+    titles = db.execute(text("SELECT * "
                              "FROM news_title "
                              f"WHERE date(data->>'time') = date('{date}')"))
     return titles
@@ -33,7 +33,7 @@ def get_daily_titles_by_lang_and_country(db: Session,
                                          lang: str, country: str,
                                          date: datetime.date = datetime.date.today(),
                                          ):
-    titles = db.execute(text("SELECT *"
+    titles = db.execute(text("SELECT * "
                              "FROM news_title "
                              f"WHERE date(data->>'time') = date('{date}')"
                              f"AND data->>'lang' = '{lang}'"

@@ -16,7 +16,7 @@ def process(db: Session):
         result.update(res)
         logger.debug(f'{country} processed')
     logger.debug(f'Inserting daily result to db')
-    cons.insert_daily_result(db=db, entities=result, lang='')
+    cons.insert_daily_result(db=db, entities=result)
     logger.debug(f'Data successfully inserted')
 
 

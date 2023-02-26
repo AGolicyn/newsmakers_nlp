@@ -3,7 +3,7 @@ from ..db.session import *
 from ..crud.title import *
 from .test_processing.data_garbage import *
 
-TEST_SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:postgres@db:5432/news_title"
+TEST_SQLALCHEMY_DATABASE_URL = os.environ.get('TEST_DATABASE_URL')
 
 engine = create_engine(TEST_SQLALCHEMY_DATABASE_URL)
 TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -77,4 +77,12 @@ def get_prepared_ru_data(db: Session):
         ids.append(insert_title(db=db, title=title))
     day = datetime.date(2023, 2, 17)
     data = get_daily_titles_by_lang_and_country(db=db, lang='RU', country='Russia', date=day)
+    return {"data": data, "ids": ids}
+@pytest.fixture()
+def get_prepared_de_data(db: Session):
+    ids = []
+    for title in GERMANY_PREPARED_DATA:
+        ids.append(insert_title(db=db, title=title))
+    day = datetime.date(2023, 2, 21)
+    data = get_daily_titles_by_lang_and_country(db=db, lang='DE', country='Germany', date=day)
     return {"data": data, "ids": ids}

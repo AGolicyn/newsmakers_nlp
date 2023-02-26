@@ -27,7 +27,10 @@ class Processor:
 
     def process_daily_data(self, db: Session, date: datetime.date = datetime.date.today()):
         logger.debug(f'Getting data from db')
-        data = title.get_daily_titles_by_lang_and_country(db=db, date=date, lang=self.lang, country=self.country)
+        data = title.get_daily_titles_by_lang_and_country(db=db,
+                                                          date=date,
+                                                          lang=self.lang,
+                                                          country=self.country)
         # print(data)
         logger.debug(f'Extracting entities')
         entities = self._entity_extractor(data)
@@ -62,7 +65,11 @@ class Processor:
                           date: datetime.date):
         """Для каждой сущности и имени сущности считаем количество повторений,
          -> строим облако слов и выделяем 10 самых распространенных"""
-        build_wordcloud(entity=entity, frequencies=frequencies, date=date, lang=self.lang, country=self.country)
+        build_wordcloud(entity=entity,
+                        frequencies=frequencies,
+                        date=date,
+                        country=self.country,
+                        ent_mapper=self.ent)
         return self._most_common_entity_names(entity=entity, frequencies=frequencies)
 
     @staticmethod

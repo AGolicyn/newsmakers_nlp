@@ -10,8 +10,8 @@ from loguru import logger
 def build_wordcloud(entity: str,
                     frequencies: dict,
                     date: datetime.date,
-                    lang: str,
-                    country: str):
+                    country: str,
+                    ent_mapper: dict):
     logger.debug(f'Building wordcloud for {country} {entity}')
 
     if not frequencies:
@@ -32,5 +32,5 @@ def build_wordcloud(entity: str,
     wordcloud.generate_from_frequencies(frequencies=frequencies)
     p = pathlib.Path(f'/media/images/{date.year}/{date.month}/{date.day}/{country}/')
     p.mkdir(parents=True, exist_ok=True)
-    wordcloud.to_file(str(p.joinpath(f'{entity}.webp')))
+    wordcloud.to_file(str(p.joinpath(f'{ent_mapper[entity]}.webp')))
     logger.debug(f'Stored to {p}')

@@ -23,6 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r src/requirements.txt
+          python -m pip install -e git+https://github.com/amueller/word_cloud#egg=wordcloud
       - 
         name: Lint with flake8
         run: |
@@ -62,6 +63,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r src/requirements.txt
+          python -m pip install -e git+https://github.com/amueller/word_cloud#egg=wordcloud
           pip install alembic
       - 
         name: Setup alembic migrations

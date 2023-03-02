@@ -1,11 +1,9 @@
-import pickle
-from uuid import UUID
 from enum import Enum
 
 from collections import namedtuple
-from collections import defaultdict
 
-ENT: dict[str, defaultdict[str, list[UUID]]]
+import spacy
+
 
 SUPPORTED_COUNTRIES = ['Russia', 'USA', 'Germany']
 
@@ -23,7 +21,7 @@ def language_manager(country: str) -> namedtuple:
     if country == 'Russia':
         return Lang(country='Russia',
                     lang='RU',
-                    nlp=_load_nlp('RU'),
+                    nlp=spacy.load("ru_core_news_md"),
                     entities={'LOC': Entity.Location.value,
                               'PER': Entity.Person.value,
                               'ORG': Entity.Organization.value},
@@ -32,7 +30,7 @@ def language_manager(country: str) -> namedtuple:
     elif country == 'USA':
         return Lang(country='USA',
                     lang='EN',
-                    nlp=_load_nlp('EN'),
+                    nlp=spacy.load("en_core_web_md"),
                     entities={'GPE': Entity.Location.value,
                               'PERSON': Entity.Person.value,
                               'ORG': Entity.Organization.value},
@@ -40,8 +38,7 @@ def language_manager(country: str) -> namedtuple:
     elif country == 'Germany':
         return Lang(country='Germany',
                     lang='DE',
-                    nlp=_load_nlp('DE'),
-                    # nlp=spacy.load("de_core_news_md"),
+                    nlp=spacy.load("de_core_news_md"),
                     entities={'LOC': Entity.Location.value,
                               'PER': Entity.Person.value,
                               'ORG': Entity.Organization.value},
@@ -49,22 +46,22 @@ def language_manager(country: str) -> namedtuple:
     else:
         raise f'{country} NOT IMPLEMENTED'
 
-
-def _load_nlp(lang: str):
-    if lang == 'RU':
-        with open('/src/nlp/processing/nlp_data/ru_core_news_md.pickle', 'rb') as f:
-            ru_nlp = pickle.load(f)
-        return ru_nlp
-    elif lang == 'EN':
-        with open('/src/nlp/processing/nlp_data/en_core_web_md.pickle', 'rb') as f:
-            en_nlp = pickle.load(f)
-        return en_nlp
-    elif lang == 'DE':
-        with open('/src/nlp/processing/nlp_data/de_core_news_md.pickle', 'rb') as f:
-            de_nlp = pickle.load(f)
-        return de_nlp
-    else:
-        raise f'NLP for {lang} NOT INSTALLED'
+#
+# def _load_nlp(lang: str):
+#     if lang == 'RU':
+#         with open('/src/nlp/processing/nlp_data/ru_core_news_md.pickle', 'rb') as f:
+#             ru_nlp = pickle.load(f)
+#         return ru_nlp
+#     elif lang == 'EN':
+#         with open('/src/nlp/processing/nlp_data/en_core_web_md.pickle', 'rb') as f:
+#             en_nlp = pickle.load(f)
+#         return en_nlp
+#     elif lang == 'DE':
+#         with open('/src/nlp/processing/nlp_data/de_core_news_md.pickle', 'rb') as f:
+#             de_nlp = pickle.load(f)
+#         return de_nlp
+#     else:
+#         raise f'NLP for {lang} NOT INSTALLED'
 
 # print(Entity.Location.value)
 # nlp_2 = spacy.load("en_core_web_lg")

@@ -8,3 +8,7 @@ wordcloud==1.8.2.2
 numpy==1.24.2
 pyzmq==25.0.0
 psycopg2-binary==2.9.5
+
+https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.5.0/en_core_web_md-3.5.0-py3-none-any.whl
+https://github.com/explosion/spacy-models/releases/download/ru_core_news_md-3.5.0/ru_core_news_md-3.5.0-py3-none-any.whl
+https://github.com/explosion/spacy-models/releases/download/de_core_news_md-3.5.0/de_core_news_md-3.5.0-py3-none-any.whl

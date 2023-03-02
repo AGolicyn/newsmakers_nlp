@@ -10,7 +10,6 @@ from .word_cloud import build_wordcloud
 from nlp.crud import title, cons
 from .settings import SUPPORTED_COUNTRIES, language_manager
 
-ENT: dict[str, defaultdict[str, list[UUID]]]
 
 def process(db: Session):
     result = {}
@@ -84,7 +83,8 @@ class Processor:
     def _entity_extractor(self, data: CursorResult):
         """Извлекаем список сущностей (по категориям) из текста и
         ассоциируем с каждой стрОки(id), в которых она упоминается"""
-        entities: ENT = {ent: defaultdict() for ent in self.ent}
+        entities: dict[str, defaultdict[str, list[UUID]]] = \
+            {ent: defaultdict() for ent in self.ent}
         for row in data:
             with self.nlp.select_pipes(enable=self.pipes):
                 doc_ent = self.nlp(row.data['title'])

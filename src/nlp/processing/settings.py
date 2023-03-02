@@ -1,11 +1,11 @@
 import pickle
-import uuid
+from uuid import UUID
 from enum import Enum
 
 from collections import namedtuple
 from collections import defaultdict
 
-ENT: dict[str, defaultdict[str, list[uuid]]]
+ENT: dict[str, defaultdict[str, list[UUID]]]
 
 SUPPORTED_COUNTRIES = ['Russia', 'USA', 'Germany']
 

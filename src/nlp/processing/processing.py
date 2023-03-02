@@ -8,8 +8,9 @@ from uuid import UUID
 
 from .word_cloud import build_wordcloud
 from nlp.crud import title, cons
-from .settings import SUPPORTED_COUNTRIES, language_manager, ENT
+from .settings import SUPPORTED_COUNTRIES, language_manager
 
+ENT: dict[str, defaultdict[str, list[UUID]]]
 
 def process(db: Session):
     result = {}

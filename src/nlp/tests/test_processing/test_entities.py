@@ -1,8 +1,14 @@
 import pytest
+import datetime
 
-from ...processing.processing import *
-from ...crud.title import *
-from .data_garbage import *
+from sqlalchemy.orm import Session
+from collections import defaultdict
+
+from src.nlp.processing.processing import Processor
+from src.nlp.crud.title import get_title_by_id
+from .data_garbage import ENGLISH_PREPARED_DATA, \
+    GERMANY_PREPARED_DATA, RUSSIAN_PREPARED_DATA
+
 
 def test_entity_extractor_for_en_language(db: Session, get_prepared_en_data):
     proc = Processor(country='USA')
@@ -26,6 +32,7 @@ def test_entity_extractor_for_en_language(db: Session, get_prepared_en_data):
 
     assert title == ENGLISH_PREPARED_DATA[2]['title']
 
+
 def test_entity_extractor_for_ru_language(db: Session, get_prepared_ru_data):
     proc = Processor(country='Russia')
     result = proc._entity_extractor(get_prepared_ru_data['data'])
@@ -47,6 +54,7 @@ def test_entity_extractor_for_ru_language(db: Session, get_prepared_ru_data):
     title = get_title_by_id(db=db, id=id)
 
     assert title == RUSSIAN_PREPARED_DATA[0]['title']
+
 
 def test_entity_extractor_for_de_language(db: Session, get_prepared_de_data):
     proc = Processor(country='Germany')
@@ -74,20 +82,19 @@ def test_entity_extractor_for_de_language(db: Session, get_prepared_de_data):
 
 @pytest.mark.skipif(reason='Dont understand why am i trying to test this, and what im actually testing:)')
 def test_entity_generator():
-    entities = {'LOC':
-                    defaultdict(None, {
-                        'россия': ['791e8eff-6d46-4a07-871b-7b3b1fc2f01f', 'e11de3e3-6cc7-4ff4-9773-0212c9fbac19'],
-                        'германия': ['0d02a2b2-ab22-44ec-8728-5d07bf444dd3'],
-                        'кремль': ['0d02a2b2-ab22-44ec-8728-5d07bf444dd3']}),
-                'PER': defaultdict(None, {
-                    'Сталин': ['791e8eff-6d46-4a07-871b-7b3b1fc2f01f', 'e11de3e3-6cc7-4ff4-9773-0212c9fbac19'],
-                    'Путин': ['0d02a2b2-ab22-44ec-8728-5d07bf444dd3']}),
-                'ORG': defaultdict(None, {
-                    'мвд': ['791e8eff-6d46-4a07-871b-7b3b1fc2f01f', 'e11de3e3-6cc7-4ff4-9773-0212c9fbac19']})
-                }
+    entities = {
+        'LOC':
+            defaultdict(None, {
+                'россия': ['791e8eff-6d46-4a07-871b-7b3b1fc2f01f', 'e11de3e3-6cc7-4ff4-9773-0212c9fbac19'],
+                'германия': ['0d02a2b2-ab22-44ec-8728-5d07bf444dd3'],
+                'кремль': ['0d02a2b2-ab22-44ec-8728-5d07bf444dd3']}),
+        'PER': defaultdict(None, {
+            'Сталин': ['791e8eff-6d46-4a07-871b-7b3b1fc2f01f', 'e11de3e3-6cc7-4ff4-9773-0212c9fbac19'],
+            'Путин': ['0d02a2b2-ab22-44ec-8728-5d07bf444dd3']}),
+        'ORG': defaultdict(None, {
+            'мвд': ['791e8eff-6d46-4a07-871b-7b3b1fc2f01f', 'e11de3e3-6cc7-4ff4-9773-0212c9fbac19']})
+    }
     result = {}
-    ent = {}
-    for entity, freq, _ in Processor.entity_generator(entities=entities, date=datetime.date(2023,2,17)):
+    for entity, freq, _ in Processor.entity_generator(entities=entities, date=datetime.date(2023, 2, 17)):
         result.update((entity, freq))
     print(result)
-

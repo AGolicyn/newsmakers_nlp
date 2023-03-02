@@ -1,15 +1,14 @@
 import pickle
-import time
 import uuid
 from enum import Enum
-import spacy
-from spacy import Language
+
 from collections import namedtuple
 from collections import defaultdict
 
 ENT: dict[str, defaultdict[str, list[uuid]]]
 
 SUPPORTED_COUNTRIES = ['Russia', 'USA', 'Germany']
+
 
 class Entity(Enum):
     Location = 'LOC'
@@ -18,6 +17,8 @@ class Entity(Enum):
 
 
 Lang = namedtuple('NLP', 'country lang nlp entities pipes')
+
+
 def language_manager(country: str) -> namedtuple:
     if country == 'Russia':
         return Lang(country='Russia',
@@ -27,7 +28,7 @@ def language_manager(country: str) -> namedtuple:
                               'PER': Entity.Person.value,
                               'ORG': Entity.Organization.value},
                     pipes=["ner", 'lemmatizer', 'attribute_ruler', 'parser'])
-                           # 'morphologizer', ])
+
     elif country == 'USA':
         return Lang(country='USA',
                     lang='EN',
@@ -64,18 +65,10 @@ def _load_nlp(lang: str):
         return de_nlp
     else:
         raise f'NLP for {lang} NOT INSTALLED'
-import os
-import pathlib
-p = pathlib.Path('..')
-print(p.cwd())
-# print(Entity.Location.value)
 
+# print(Entity.Location.value)
 # nlp_2 = spacy.load("en_core_web_lg")
 # nlp_3 = spacy.load("de_core_news_lg")
-
-
-
-
 # nlp_1 = spacy.load("de_core_news_lg")
 # print(nlp_1)
 # nlp_1.to_disk('ru_core_news_lg')
@@ -93,8 +86,6 @@ print(p.cwd())
 #
 # with open('nlp_data/de_core_news_lg.pickle', 'wb') as f:
 #     pickle.dump(nlp_1, f)
-
-
 
 # with open('nlp_data/ru_core_news_md.pickle', 'rb') as f:
 #     ru = pickle.load(f)

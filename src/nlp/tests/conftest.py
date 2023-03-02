@@ -1,7 +1,13 @@
 import pytest
-from ..db.session import *
-from ..crud.title import *
-from .test_processing.data_garbage import *
+import os
+import datetime
+
+from sqlalchemy.orm import Session
+
+from src.nlp.db.session import create_engine, sessionmaker, Base, text
+from src.nlp.crud.title import insert_title, get_daily_titles_by_lang_and_country
+from .test_processing.data_garbage import RUSSIAN_PREPARED_DATA, \
+    GERMANY_PREPARED_DATA, ENGLISH_PREPARED_DATA
 
 TEST_SQLALCHEMY_DATABASE_URL = os.environ.get('TEST_DATABASE_URL')
 
@@ -62,6 +68,7 @@ def fill_news_title_with_data(db: Session):
     insert_title(db=db, title=title_3)
     insert_title(db=db, title=title_4)
 
+
 @pytest.fixture()
 def get_prepared_en_data(db: Session):
     for title in ENGLISH_PREPARED_DATA:
@@ -69,6 +76,7 @@ def get_prepared_en_data(db: Session):
     day = datetime.date(2023, 2, 17)
     data = get_daily_titles_by_lang_and_country(db=db, lang='EN', country='USA', date=day)
     return data
+
 
 @pytest.fixture()
 def get_prepared_ru_data(db: Session):
@@ -78,6 +86,8 @@ def get_prepared_ru_data(db: Session):
     day = datetime.date(2023, 2, 17)
     data = get_daily_titles_by_lang_and_country(db=db, lang='RU', country='Russia', date=day)
     return {"data": data, "ids": ids}
+
+
 @pytest.fixture()
 def get_prepared_de_data(db: Session):
     ids = []

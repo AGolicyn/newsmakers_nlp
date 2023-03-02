@@ -1,6 +1,7 @@
 from loguru import logger
 from nlp.db.session import SessionLocal
 
+
 class DatabaseSession:
     def __enter__(self):
         self.db = SessionLocal()
@@ -10,5 +11,3 @@ class DatabaseSession:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.db.close()
         logger.debug("Database session closed")
-
-

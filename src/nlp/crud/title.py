@@ -1,7 +1,7 @@
 import datetime
 from loguru import logger
 from sqlalchemy.orm import Session
-from ..db.session import NewsTitle
+from nlp.db.session import NewsTitle
 from sqlalchemy import insert, text
 from sqlalchemy.exc import SQLAlchemyError
 from typing import Mapping
@@ -47,3 +47,14 @@ def get_title_by_id(db: Session, id: UUID):
                             "FROM news_title "
                             f"WHERE id = ('{id}')")).scalar_one()
     return title
+
+
+def get_day_url_frequency(db: Session, date: datetime.date = datetime.date.today()):
+    urls = db.execute(text(
+        "SELECT data->>'url' as URL, count(*) as Frequency "
+        "FROM news_title "
+        f"WHERE date(data->>'time') = date('{date}')"
+        "GROUP BY data->>'url'"
+        "ORDER BY Frequency DESC"
+    )).fetchall()
+    return urls

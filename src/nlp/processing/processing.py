@@ -1,10 +1,14 @@
 import datetime
+
+from collections import defaultdict
 from loguru import logger
 from sqlalchemy.engine.cursor import CursorResult
+from sqlalchemy.orm import Session
+from uuid import UUID
+
 from .word_cloud import build_wordcloud
 from nlp.crud import title, cons
-from sqlalchemy.orm import Session
-from .settings import *
+from .settings import SUPPORTED_COUNTRIES, language_manager, ENT
 
 
 def process(db: Session):
@@ -15,9 +19,9 @@ def process(db: Session):
         res = prc.process_daily_data(db=db)
         result.update(res)
         logger.debug(f'{country} processed')
-    logger.debug(f'Inserting daily result to db')
+    logger.debug('Inserting daily result to db')
     cons.insert_daily_result(db=db, entities=result)
-    logger.debug(f'Data successfully inserted')
+    logger.debug('Data successfully inserted')
 
 
 class Processor:
@@ -26,13 +30,12 @@ class Processor:
             = language_manager(country=country)
 
     def process_daily_data(self, db: Session, date: datetime.date = datetime.date.today()):
-        logger.debug(f'Getting data from db')
+        logger.debug('Getting data from db')
         data = title.get_daily_titles_by_lang_and_country(db=db,
                                                           date=date,
                                                           lang=self.lang,
                                                           country=self.country)
-        # print(data)
-        logger.debug(f'Extracting entities')
+        logger.debug('Extracting entities')
         entities = self._entity_extractor(data)
         logger.debug('Calculating most common')
         common_entity_names = (
@@ -46,9 +49,9 @@ class Processor:
         # print(common_entities_with_id)
         return {self.country: common_entities_with_id}
 
-    def _common_entities_intersection(self, entities: dict[str, defaultdict[str, list[uuid]]],
+    def _common_entities_intersection(self, entities: dict[str, defaultdict[str, list[UUID]]],
                                       common_entity_names: dict[str, list[str]]) -> \
-            dict[str, dict[str, list[int]]]:
+            dict[str, dict[str, list[UUID]]]:
         """Для самых распространенных сущностей получаем спсок uuid,
         в которых они упоминаются"""
         result = {}
@@ -90,7 +93,7 @@ class Processor:
         return entities
 
     @staticmethod
-    def entity_generator(entities: dict[str, defaultdict[str, list[uuid]]],
+    def entity_generator(entities: dict[str, defaultdict[str, list[UUID]]],
                          date: datetime.date = datetime.date.today()):
         for entity in entities:
             frequencies = {}

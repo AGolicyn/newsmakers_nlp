@@ -1,10 +1,9 @@
 import datetime
+
 from uuid import UUID
-
-import pytest
-
 from nlp.crud import title, cons
 from sqlalchemy.orm import Session
+
 
 def test_insert_processed_data(db: Session):
     day_result = {

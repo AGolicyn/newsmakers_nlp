@@ -58,6 +58,4 @@ GERMANY_PREPARED_DATA = [
         "country": "Germany",
         "time": "2023-02-21 21:45:52.974225"
     },
-
-
 ]

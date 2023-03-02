@@ -8,16 +8,19 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 from collections.abc import Mapping
 from sqlalchemy.dialects.postgresql import JSONB
 
-
-LOCAL_DATABASE_URL = 'postgresql://postgres:postgres@db:5432/news_title'
+LOCAL_DATABASE_URL = 'postgresql://artem:123@localhost:5432/news_title'
 SQLALCHEMY_DATABASE_URL = os.environ.get('DATABASE_URL', default=LOCAL_DATABASE_URL)
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autoflush=False, bind=engine)
 
-class Base(DeclarativeBase): pass
+
+class Base(DeclarativeBase):
+    pass
+
 
 Base.metadata.create_all(bind=engine)
+
 
 class NewsTitle(Base):
     __tablename__ = 'news_title'

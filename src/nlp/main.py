@@ -14,10 +14,11 @@ async def main():
         await subscriber.synchronize()
         with DatabaseSession() as db:
             await subscriber.receive_json_to_db(db=db)
-            res = get_day_url_frequency(db=db)
+            res = get_day_url_frequency(db=db)  # todo blocking shit
             logger.info(res)
             # break
-            process(db=db)
+            process(db=db)  # todo blocking shit
+            # break
             # loop = asyncio.get_running_loop()
             # await loop.run_in_executor(None, )
 

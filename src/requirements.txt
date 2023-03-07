@@ -3,7 +3,6 @@ pymorphy3==1.2.0
 spacy==3.5.0
 loguru==0.6.0
 SQLAlchemy==2.0.4
-pytest==7.2.1
 wordcloud==1.8.2.2
 numpy==1.24.2
 pyzmq==25.0.0

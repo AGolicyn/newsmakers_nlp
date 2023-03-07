@@ -4,8 +4,8 @@ import datetime
 
 from sqlalchemy.orm import Session
 
-from src.nlp.db.session import create_engine, sessionmaker, Base, text
-from src.nlp.crud.title import insert_title, get_daily_titles_by_lang_and_country
+from nlp.db.session import create_engine, sessionmaker, Base, text
+from nlp.crud.title import insert_title, get_daily_titles_by_lang_and_country
 from .test_processing.data_garbage import RUSSIAN_PREPARED_DATA, \
     GERMANY_PREPARED_DATA, ENGLISH_PREPARED_DATA
 

@@ -4,8 +4,8 @@ import datetime
 from sqlalchemy.orm import Session
 from collections import defaultdict
 
-from src.nlp.processing.processing import Processor
-from src.nlp.crud.title import get_title_by_id
+from nlp.processing.processing import Processor
+from nlp.crud.title import get_title_by_id
 from .data_garbage import ENGLISH_PREPARED_DATA, \
     GERMANY_PREPARED_DATA, RUSSIAN_PREPARED_DATA
 

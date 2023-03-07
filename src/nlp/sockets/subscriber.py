@@ -39,7 +39,7 @@ class Subscriber:
                     if 'END' in msg:
                         break
                     logger.debug(f"INCOMING MESSAGE: {msg}")
-                    insert_title(db, msg)
+                    insert_title(db, msg)  # todo async insert
                 except json.decoder.JSONDecodeError as e:
                     logger.error(e)
         logger.debug('All data was received')

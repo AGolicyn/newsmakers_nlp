@@ -1,52 +1,65 @@
+import asyncio
 import datetime
+import time
 
 from collections import defaultdict
 from loguru import logger
-from sqlalchemy.engine.cursor import CursorResult
 from sqlalchemy.orm import Session
 from uuid import UUID
 
 from .word_cloud import build_wordcloud
 from nlp.crud import title, cons
 from .settings import SUPPORTED_COUNTRIES, language_manager
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 
 
-def process(db: Session):
+async def process_multi(db: Session):
+    max_workers = len(SUPPORTED_COUNTRIES)
+    start = time.time()
     result = {}
-    for country in SUPPORTED_COUNTRIES:
-        logger.debug(f'Start processing {country}...')
-        prc = Processor(country)
-        res = prc.process_daily_data(db=db)
-        result.update(res)
-        logger.debug(f'{country} processed')
-    logger.debug('Inserting daily result to db')
-    cons.insert_daily_result(db=db, entities=result)
-    logger.debug('Data successfully inserted')
+    with ProcessPoolExecutor(max_workers=max_workers) as pool:
+        logger.debug(f'Start multiprocessing with {pool._max_workers} workers')
+        loop = asyncio.get_running_loop()
+        tasks = []
 
+        for country in SUPPORTED_COUNTRIES:
+            prc = Processor(country)
+            data = prc.get_data(db=db)
+            process_country = partial(prc.process_daily_data, data)
+            tasks.append(loop.run_in_executor(pool, process_country))
+
+        res = await asyncio.gather(*tasks)
+        for r in res:
+            result.update(r)
+    Processor.insert_data(db=db, result=result)
+    end = time.time() - start
+
+    logger.debug(f'End multiprocessing, with {end}')
 
 class Processor:
-    def __init__(self, country):
+    def __init__(self, country: str, date: datetime.date = datetime.date.today()):
+        self.date = date
         self.country, self.lang, self.nlp, self.ent, self.pipes \
             = language_manager(country=country)
 
-    def process_daily_data(self, db: Session, date: datetime.date = datetime.date.today()):
+    def get_data(self, db: Session):
         logger.debug('Getting data from db')
-        data = title.get_daily_titles_by_lang_and_country(db=db,
-                                                          date=date,
+        return title.get_daily_titles_by_lang_and_country(db=db,
+                                                          date=self.date,
                                                           lang=self.lang,
                                                           country=self.country)
-        logger.debug('Extracting entities')
+
+    def process_daily_data(self, data: list):
         entities = self._entity_extractor(data)
         logger.debug('Calculating most common')
         common_entity_names = (
-            self._accept_frequency(entity, frequency, date)
+            self._accept_frequency(entity, frequency)
             for entity, frequency, date
-            in self.entity_generator(entities, date=date)
+            in self.entity_generator(entities, date=self.date)
         )
         common_entity_names = {k: v for k, v in common_entity_names}
         common_entities_with_id = self._common_entities_intersection(entities, common_entity_names)
-
-        # print(common_entities_with_id)
         return {self.country: common_entities_with_id}
 
     def _common_entities_intersection(self, entities: dict[str, defaultdict[str, list[UUID]]],
@@ -64,13 +77,12 @@ class Processor:
         return result
 
     def _accept_frequency(self, entity: str,
-                          frequencies: dict,
-                          date: datetime.date):
+                          frequencies: dict):
         """Для каждой сущности и имени сущности считаем количество повторений,
          -> строим облако слов и выделяем 10 самых распространенных"""
         build_wordcloud(entity=entity,
                         frequencies=frequencies,
-                        date=date,
+                        date=self.date,
                         country=self.country,
                         ent_mapper=self.ent)
         return self._most_common_entity_names(entity=entity, frequencies=frequencies)
@@ -80,9 +92,10 @@ class Processor:
         sorted_freq = sorted(frequencies, key=frequencies.get, reverse=True)
         return entity, sorted_freq[:10]
 
-    def _entity_extractor(self, data: CursorResult):
+    def _entity_extractor(self, data: list):
         """Извлекаем список сущностей (по категориям) из текста и
         ассоциируем с каждой стрОки(id), в которых она упоминается"""
+        logger.debug('Extracting entities')
         entities: dict[str, defaultdict[str, list[UUID]]] = \
             {ent: defaultdict() for ent in self.ent}
         for row in data:
@@ -102,12 +115,7 @@ class Processor:
                 frequencies[name] = len(entities[entity][name])
             yield entity, frequencies, date
 
-
-# from nlp_data.db.connection import DatabaseSession
-
-# with DatabaseSession() as db:
-#     process(db)
-#     pass
-    # process_daily_data(db=db, date=day)
-    # do_some_shit(db=db, date=day)
-    # get_daily_results(db=db, date=day, country='Russia')
+    @staticmethod
+    def insert_data(db: Session, result: dict):
+        """Вставить данные базу данных"""
+        cons.insert_daily_result(db=db, entities=result)

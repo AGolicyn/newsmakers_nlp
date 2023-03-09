@@ -2,9 +2,10 @@ import asyncio
 
 from nlp.sockets.subscriber import Subscriber
 from nlp.db.connection import DatabaseSession
-from nlp.processing.processing import process
+from nlp.processing.processing import process_multi
 from nlp.crud.title import get_day_url_frequency
 from loguru import logger
+
 
 
 async def main():
@@ -16,11 +17,8 @@ async def main():
             await subscriber.receive_json_to_db(db=db)
             res = get_day_url_frequency(db=db)  # todo blocking shit
             logger.info(res)
+            await process_multi(db=db)
             # break
-            process(db=db)  # todo blocking shit
-            # break
-            # loop = asyncio.get_running_loop()
-            # await loop.run_in_executor(None, )
 
 
 if __name__ == "__main__":

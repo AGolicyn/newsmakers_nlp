@@ -37,6 +37,7 @@ async def process_multi(db: Session):
 
     logger.debug(f'End multiprocessing, with {end}')
 
+
 class Processor:
     def __init__(self, country: str, date: datetime.date = datetime.date.today()):
         self.date = date

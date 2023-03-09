@@ -7,7 +7,6 @@ from nlp.crud.title import get_day_url_frequency
 from loguru import logger
 
 
-
 async def main():
     logger.debug('NLP Start serving')
     subscriber = Subscriber()

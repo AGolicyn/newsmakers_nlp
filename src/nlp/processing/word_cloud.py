@@ -16,8 +16,8 @@ def build_wordcloud(entity: str,
     if not frequencies:
         logger.info(f'Empty frequencies for {entity}')
         return
-    x, y = np.ogrid[:1000, :1000]
-    mask = (x - 500) ** 2 + (y - 500) ** 2 > 420 ** 2
+    x, y = np.ogrid[:500, :500]
+    mask = (x - 250) ** 2 + (y - 250) ** 2 > 210 ** 2
     mask = 255 * mask.astype(int)
 
     wordcloud = WordCloud(
@@ -32,4 +32,3 @@ def build_wordcloud(entity: str,
     p = pathlib.Path(f'/media/images/{date.year}/{date.month}/{date.day}/{country}/')
     p.mkdir(parents=True, exist_ok=True)
     wordcloud.to_file(str(p.joinpath(f'{ent_mapper[entity]}.webp')))
-    logger.debug(f'Stored to {p}')

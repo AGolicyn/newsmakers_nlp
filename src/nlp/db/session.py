@@ -1,29 +1,31 @@
-import datetime
 import uuid
+import datetime
 import os
 
-from sqlalchemy import create_engine, text, func
-from sqlalchemy.types import Date, UUID
-from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.ext.asyncio import async_sessionmaker, \
+    create_async_engine, AsyncSession
+from sqlalchemy import func, UUID, text, Index
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 from collections.abc import Mapping
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.types import Date
 
-LOCAL_DATABASE_URL = 'postgresql://artem:123@localhost:5432/news_title'
+LOCAL_DATABASE_URL = 'postgresql+asyncpg://postgres:postgres@0.0.0.0:5432/news_title'
 SQLALCHEMY_DATABASE_URL = os.environ.get('DATABASE_URL', default=LOCAL_DATABASE_URL)
+engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True, future=True)
+Base = declarative_base()
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autoflush=False, bind=engine)
-
-
-class Base(DeclarativeBase):
-    pass
+AsyncSessionFactory = async_sessionmaker(engine, expire_on_commit=False)
 
 
-Base.metadata.create_all(bind=engine)
+async def get_db() -> AsyncSession:
+    async with AsyncSessionFactory() as session:
+        yield session
 
 
 class NewsTitle(Base):
     __tablename__ = 'news_title'
+    __table_args__ = (Index("unique_href", text("(data->>'href')"), unique=True),)
 
     id: Mapped[uuid] = mapped_column(UUID(as_uuid=True),
                                      primary_key=True,

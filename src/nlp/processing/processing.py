@@ -1,41 +1,13 @@
-import asyncio
 import datetime
-import time
 
 from collections import defaultdict
 from loguru import logger
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
 from .word_cloud import build_wordcloud
 from nlp.crud import title, cons
-from .settings import SUPPORTED_COUNTRIES, language_manager
-from concurrent.futures import ProcessPoolExecutor
-from functools import partial
-
-
-async def process_multi(db: Session):
-    max_workers = len(SUPPORTED_COUNTRIES)
-    start = time.time()
-    result = {}
-    with ProcessPoolExecutor(max_workers=max_workers) as pool:
-        logger.debug(f'Start multiprocessing with {pool._max_workers} workers')
-        loop = asyncio.get_running_loop()
-        tasks = []
-
-        for country in SUPPORTED_COUNTRIES:
-            prc = Processor(country)
-            data = prc.get_data(db=db)
-            process_country = partial(prc.process_daily_data, data)
-            tasks.append(loop.run_in_executor(pool, process_country))
-
-        res = await asyncio.gather(*tasks)
-        for r in res:
-            result.update(r)
-    Processor.insert_data(db=db, result=result)
-    end = time.time() - start
-
-    logger.debug(f'End multiprocessing, with {end}')
+from .settings import language_manager
 
 
 class Processor:
@@ -44,12 +16,12 @@ class Processor:
         self.country, self.lang, self.nlp, self.ent, self.pipes \
             = language_manager(country=country)
 
-    def get_data(self, db: Session):
+    async def get_data(self, db: AsyncSession):
         logger.debug('Getting data from db')
-        return title.get_daily_titles_by_lang_and_country(db=db,
-                                                          date=self.date,
-                                                          lang=self.lang,
-                                                          country=self.country)
+        return await title.get_daily_titles_by_lang_and_country(db=db,
+                                                                date=self.date,
+                                                                lang=self.lang,
+                                                                country=self.country)
 
     def process_daily_data(self, data: list):
         entities = self._entity_extractor(data)
@@ -117,6 +89,6 @@ class Processor:
             yield entity, frequencies, date
 
     @staticmethod
-    def insert_data(db: Session, result: dict):
+    async def insert_data(db: AsyncSession, result: dict):
         """Вставить данные базу данных"""
-        cons.insert_daily_result(db=db, entities=result)
+        await cons.insert_daily_result(db=db, entities=result)

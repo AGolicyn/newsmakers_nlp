@@ -1,8 +1,6 @@
-from enum import Enum
-
-from collections import namedtuple
-
 import spacy
+from enum import Enum
+from collections import namedtuple
 
 
 SUPPORTED_COUNTRIES = ['Russia', 'USA', 'Germany']

@@ -1,11 +1,16 @@
 import datetime
 
 from uuid import UUID
+from nlp.tests.conftest import titles
+import pytest
 from nlp.crud import title, cons
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-def test_insert_processed_data(db: Session):
+# from nlp.crud.title import insert_title, get_daily_titles
+
+@pytest.mark.asyncio
+async def test_insert_processed_data(session: AsyncSession):
     day_result = {
         'Russia': {
             'LOC': {
@@ -23,7 +28,7 @@ def test_insert_processed_data(db: Session):
         }
     }
     today = datetime.date.today()
-    inserted_data = cons.insert_daily_result(db=db, entities=day_result)
+    inserted_data = await cons.insert_daily_result(db=session, entities=day_result)
 
     assert inserted_data.date == today
     assert 'Russia' in inserted_data.entities
@@ -32,14 +37,15 @@ def test_insert_processed_data(db: Session):
     assert 'PER' in inserted_data.entities['Russia']
 
 
-def test_insert_title_data(db: Session):
+@pytest.mark.asyncio
+async def test_insert_title_data(session: AsyncSession):
     test_title = {"url": "https://www.usatoday.com/",
                   "href": "https://www.usatoday.com/moremoremoremoerelike_real_url",
                   "lang": "EN", "time": "2023-02-15 21:45:55.270582",
                   "title": "Tesla’s supercharger network to open to competing…",
                   "country": "USA"}
 
-    inserted_data = title.insert_title(db=db, title=test_title)
+    inserted_data = await title.insert_title(db=session, title=test_title)
 
     assert isinstance(inserted_data.id, UUID)
     assert inserted_data.data['url'] == test_title['url']
@@ -50,20 +56,56 @@ def test_insert_title_data(db: Session):
     assert inserted_data.data['country'] == test_title['country']
 
 
-def test_gets_only_today_data(db: Session, fill_news_title_with_data):
+@pytest.mark.asyncio
+async def test_insert_unique_title_data(session: AsyncSession):
+    test_title = {"url": "https://www.usatoday.com/",
+                  "href": "https://www.usatoday.com/moremoremoremoerelike_real_url",
+                  "lang": "EN", "time": "2023-02-15 21:45:55.270582",
+                  "title": "Tesla’s supercharger network to open to competing…",
+                  "country": "USA"}
+
+    same_title_but_later = {"url": "https://www.usatoday.com/",
+                            "href": "https://www.usatoday.com/moremoremoremoerelike_real_url",
+                            "lang": "EN", "time": "2023-02-15 22:45:55.270582",
+                            "title": "Tesla’s supercharger network to open to competing…",
+                            "country": "USA"}
+
+    inserted_data = await title.insert_title(db=session, title=test_title)
+    await title.insert_title(db=session, title=same_title_but_later)
+
+    result = await title.get_daily_titles(db=session, date=datetime.date(2023, 2, 15))
+
+    assert len(result) == 1
+    assert isinstance(inserted_data.id, UUID)
+    assert inserted_data.data['url'] == test_title['url']
+    assert inserted_data.data['href'] == test_title['href']
+    assert inserted_data.data['lang'] == test_title['lang']
+    assert inserted_data.data['title'] == test_title['title']
+    assert inserted_data.data['time'] == test_title['time']
+    assert inserted_data.data['country'] == test_title['country']
+
+
+@pytest.mark.asyncio
+async def test_gets_only_today_data(session: AsyncSession):
+    for db_title in titles:
+        await title.insert_title(db=session, title=db_title)
     date = datetime.date(2023, 2, 15)
 
-    result = title.get_daily_titles_by_lang_and_country(db=db, lang='RU', country='Russia', date=date)
+    result = await title.get_daily_titles_by_lang_and_country(db=session, lang='RU', country='Russia', date=date)
+    print(result)
 
     assert len(result) == 1
     assert result[0].data['title'] == "Date test data"
     assert str(date) in result[0].data['time']
 
 
-def test_gets_only_lang_and_country_needed(db: Session, fill_news_title_with_data):
+@pytest.mark.asyncio
+async def test_gets_only_lang_and_country_needed(session: AsyncSession):
+    for db_title in titles:
+        await title.insert_title(db=session, title=db_title)
     date = datetime.date(2023, 2, 17)
 
-    result = title.get_daily_titles_by_lang_and_country(db=db, lang='EN', country='Britain', date=date)
+    result = await title.get_daily_titles_by_lang_and_country(db=session, lang='EN', country='Britain', date=date)
 
     assert len(result) == 1
     assert result[0].data['title'] == "Another title i dont care"

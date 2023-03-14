@@ -8,7 +8,7 @@ from loguru import logger
 from zmq.asyncio import Context
 from contextlib import suppress
 from nlp.crud.title import insert_title
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 context = Context()
@@ -30,7 +30,7 @@ class Subscriber:
         await self.syncservice.send(b'')
         logger.debug('Subscriber and publisher successfully synchronized')
 
-    async def receive_json_to_db(self, db: Session):
+    async def receive_json_to_db(self, db: AsyncSession):
         logger.debug('Receiving data..')
         with suppress(asyncio.CancelledError):
             while True:
@@ -39,7 +39,7 @@ class Subscriber:
                     if 'END' in msg:
                         break
                     logger.debug(f"INCOMING MESSAGE: {msg}")
-                    insert_title(db, msg)  # todo async insert
+                    await insert_title(db, msg)  # todo async insert
                 except json.decoder.JSONDecodeError as e:
                     logger.error(e)
         logger.debug('All data was received')

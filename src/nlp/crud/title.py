@@ -12,9 +12,7 @@ from uuid import UUID
 async def insert_title(db: AsyncSession, title: Mapping):
     try:
         stmt = insert(NewsTitle).values(data=title).returning(NewsTitle)
-        nothing_to_do = stmt.on_conflict_do_nothing(
-            index_elements=[text("(data->>'href')")]
-        )
+        nothing_to_do = stmt.on_conflict_do_nothing()
         new_title = await db.execute(nothing_to_do)
         await db.commit()
     except SQLAlchemyError as e:
@@ -28,6 +26,11 @@ async def get_daily_titles(db: AsyncSession, date: datetime.date = datetime.date
     titles = await db.execute(text("SELECT * "
                                    "FROM news_title "
                                    f"WHERE date(data->>'time') = date('{date}')"))
+    return titles.all()
+
+
+async def get_titles(db: AsyncSession):
+    titles = await db.execute(text("SELECT * FROM news_title"))
     return titles.all()
 
 

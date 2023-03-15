@@ -7,8 +7,6 @@ from nlp.crud import title, cons
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-# from nlp.crud.title import insert_title, get_daily_titles
-
 @pytest.mark.asyncio
 async def test_insert_processed_data(session: AsyncSession):
     day_result = {
@@ -57,32 +55,90 @@ async def test_insert_title_data(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_insert_unique_title_data(session: AsyncSession):
+async def test_insert_unique_href_one_day(session: AsyncSession):
     test_title = {"url": "https://www.usatoday.com/",
-                  "href": "https://www.usatoday.com/moremoremoremoerelike_real_url",
+                  "href": "https://www.test.com/",
                   "lang": "EN", "time": "2023-02-15 21:45:55.270582",
-                  "title": "Tesla’s supercharger network to open to competing…",
+                  "title": "ONE title",
+                  "country": "USA"}
+
+    same_href_but_later = {"url": "https://www.usatoday.com/",
+                            "href": "https://www.test.com/",
+                            "lang": "EN", "time": "2023-02-15 22:45:55.270582",
+                            "title": "ANOTHER title",
+                            "country": "USA"}
+
+    await title.insert_title(db=session, title=test_title)
+    await title.insert_title(db=session, title=same_href_but_later)
+
+    result = await title.get_titles(db=session)
+
+    assert len(result) == 1
+
+@pytest.mark.asyncio
+async def test_insert_unique_href_data_different_days(session: AsyncSession):
+    test_title = {"url": "https://www.usatoday.com/",
+                  "href": "https://www.test.com/",
+                  "lang": "EN", "time": "2023-02-15 21:45:55.270582",
+                  "title": "ONE title",
+                  "country": "USA"}
+
+    same_href_but_later = {"url": "https://www.usatoday.com/",
+                            "href": "https://www.test.com/",
+                            "lang": "EN", "time": "2023-02-16 22:45:55.270582",
+                            "title": "ANOTHER title",
+                            "country": "USA"}
+
+    await title.insert_title(db=session, title=test_title)
+    await title.insert_title(db=session, title=same_href_but_later)
+
+    result = await title.get_titles(db=session)
+
+    assert len(result) == 2
+
+
+@pytest.mark.asyncio
+async def test_insert_unique_title_different_days(session: AsyncSession):
+    test_title = {"url": "https://www.usatoday.com/",
+                  "href": "https://www.test.com/",
+                  "lang": "EN", "time": "2023-02-15 21:45:55.270582",
+                  "title": "ONE title",
                   "country": "USA"}
 
     same_title_but_later = {"url": "https://www.usatoday.com/",
-                            "href": "https://www.usatoday.com/moremoremoremoerelike_real_url",
-                            "lang": "EN", "time": "2023-02-15 22:45:55.270582",
-                            "title": "Tesla’s supercharger network to open to competing…",
+                            "href": "https://www.test2.com/",
+                            "lang": "EN", "time": "2023-02-16 22:56:55.270582",
+                            "title": "ONE title",
                             "country": "USA"}
 
-    inserted_data = await title.insert_title(db=session, title=test_title)
+    await title.insert_title(db=session, title=test_title)
     await title.insert_title(db=session, title=same_title_but_later)
 
-    result = await title.get_daily_titles(db=session, date=datetime.date(2023, 2, 15))
+    result = await title.get_titles(db=session)
+
+    assert len(result) == 2
+
+
+
+@pytest.mark.asyncio
+async def test_insert_unique_title_one_day(session: AsyncSession):
+    test_title = {"url": "https://www.usatoday.com/",
+                  "href": "https://www.test.com/",
+                  "lang": "EN", "time": "2023-02-15 21:45:55.270582",
+                  "title": "ONE title",
+                  "country": "USA"}
+    same_title_but_later = {"url": "https://www.usatoday.com/",
+                            "href": "https://www.test2.com/",
+                            "lang": "EN", "time": "2023-02-15 22:56:55.270582",
+                            "title": "ONE title",
+                            "country": "USA"}
+    await title.insert_title(db=session, title=test_title)
+    await title.insert_title(db=session, title=same_title_but_later)
+
+    result = await title.get_titles(db=session)
 
     assert len(result) == 1
-    assert isinstance(inserted_data.id, UUID)
-    assert inserted_data.data['url'] == test_title['url']
-    assert inserted_data.data['href'] == test_title['href']
-    assert inserted_data.data['lang'] == test_title['lang']
-    assert inserted_data.data['title'] == test_title['title']
-    assert inserted_data.data['time'] == test_title['time']
-    assert inserted_data.data['country'] == test_title['country']
+
 
 
 @pytest.mark.asyncio

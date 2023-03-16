@@ -1,7 +1,13 @@
 name: nlp
 on:
   workflow_call:
-
+    secrets:
+      DOCKERHUB_USERNAME:
+        description: 'Docker username for login'
+        required: true
+      DOCKERHUB_TOKEN:
+        description: 'Dockerhub password token for login'
+        required: true
 jobs:
   call_test_workflow:
     uses: ./.github/workflows/test.yml

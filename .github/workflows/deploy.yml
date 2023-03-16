@@ -1,0 +1,25 @@
+name: Deploy
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+jobs:
+  call_pull_workflow:
+    uses: ./.github/workflows/pull.yml
+  deploy:
+    needs: call_pull_workflow
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: executing remote ssh commands using key
+      uses: appleboy/ssh-action@v0.1.8
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          docker compose down
+          docker compose pull nlp
+          docker compose up --build
+  

@@ -3,10 +3,8 @@ on:
   workflow_call:
     secrets:
       dockerhub-username:
-        description: 'Docker username for login'
         required: true
       dockerhub-token:
-        description: 'Dockerhub password token for login'
         required: true
 jobs:
   call_test_workflow:
@@ -34,4 +32,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/newsmakers-nlp:latest
+          tags: ${{ secrets.dockerhub-username }}/newsmakers-nlp:latest

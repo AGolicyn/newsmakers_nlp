@@ -10,6 +10,7 @@ on:
         required: true
 jobs:
   call_test_workflow:
+    name: lint and test
     uses: ./.github/workflows/test.yml
   pull:
     needs: call_test_workflow

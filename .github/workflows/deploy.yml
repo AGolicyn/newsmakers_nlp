@@ -5,7 +5,11 @@ on:
   workflow_dispatch:
 jobs:
   call_pull_workflow:
+    name: pull to dockerhub
     uses: ./.github/workflows/pull.yml
+    with:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   deploy:
     needs: call_pull_workflow
     name: Build
@@ -17,7 +21,6 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
-        port: ${{ secrets.PORT }}
         script: |
           docker compose down
           docker compose pull nlp

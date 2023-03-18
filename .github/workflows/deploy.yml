@@ -21,6 +21,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         script: |
+          cd /app/newsmakers/
           docker compose down
           docker compose pull nlp
           docker compose up -d

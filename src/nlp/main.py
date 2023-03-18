@@ -33,7 +33,9 @@ async def main():
                 for country in SUPPORTED_COUNTRIES:
                     prc = Processor(country)
                     data = await prc.get_data(db=db)
+                    logger.debug("Before appending", data)
                     tasks.append(loop.run_in_executor(pool, partial(prc.process_daily_data, data)))
+                    logger.debug("After appending", data)
                 logger.debug(len(tasks))
                 done, pending = await asyncio.wait(tasks)
                 for done_task in done:

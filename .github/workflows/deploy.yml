@@ -23,5 +23,5 @@ jobs:
         script: |
           docker compose down
           docker compose pull nlp
-          docker compose up --build
+          docker compose up -d
   

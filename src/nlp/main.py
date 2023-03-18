@@ -1,9 +1,9 @@
 import asyncio
-import time
+# import time
 
 from loguru import logger
-from functools import partial
-from concurrent.futures import ProcessPoolExecutor
+# from functools import partial
+# from concurrent.futures import ProcessPoolExecutor
 
 from nlp.sockets.subscriber import Subscriber
 from nlp.crud.title import get_day_url_frequency
@@ -22,32 +22,34 @@ async def main():
             await subscriber.receive_json_to_db(db=db)
             res = await get_day_url_frequency(db=db)
             logger.info(res)
-            loop = asyncio.get_running_loop()
-            tasks = []
+            # loop = asyncio.get_running_loop()
+            # tasks = []
             result = {}
-            start = time.time()
+            # start = time.time()
 
-            with ProcessPoolExecutor() as pool:
+            # with ProcessPoolExecutor() as pool:
 
-                logger.debug(f'Start multiprocessing with {pool._max_workers} workers')
-                for country in SUPPORTED_COUNTRIES:
-                    logger.debug(f"Start for {country}")
-                    prc = Processor(country)
-                    logger.debug("Object Processor created")
-                    data = await prc.get_data(db=db)
-                    logger.debug("Before appending", data)
-                    logger.debug(data)
-                    tasks.append(loop.run_in_executor(pool, partial(prc.process_daily_data, data)))
-                    logger.debug("After appending", data)
-                logger.debug(len(tasks))
-                done, pending = await asyncio.wait(tasks)
-                for done_task in done:
-                    res = await done_task
-                    result.update(res)
-                await Processor.insert_data(db=db, result=result)
-                end = time.time() - start
+            # logger.debug(f'Start multiprocessing with {pool._max_workers} workers')
+            for country in SUPPORTED_COUNTRIES:
+                logger.debug(f"Start for {country}")
+                prc = Processor(country)
+                logger.debug("Object Processor created")
+                data = await prc.get_data(db=db)
+                logger.debug(data)
+                res = prc.process_daily_data(data)
+                result.update(res)
+                # tasks.append(loop.run_in_executor(pool, partial(prc.process_daily_data, data)))
+                logger.debug("Result updated")
+            # logger.debug(len(tasks))
+            # done, pending = await asyncio.wait(tasks)
+            # for done_task in done:
+            #     res = await done_task
+            #     result.update(res)
+            logger.debug("Inserting")
+            await Processor.insert_data(db=db, result=result)
+            # end = time.time() - start
 
-                logger.debug(f'End multiprocessing, with {end}')
+            # logger.debug(f'End multiprocessing, with {end}')
 
 
 if __name__ == "__main__":

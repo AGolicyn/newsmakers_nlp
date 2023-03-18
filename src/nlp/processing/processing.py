@@ -18,11 +18,11 @@ class Processor:
 
     async def get_data(self, db: AsyncSession):
         logger.debug('Getting data from db')
-        return await title.get_daily_titles_by_lang_and_country(db=db,
-                                                                date=self.date,
-                                                                lang=self.lang,
-                                                                country=self.country)
-
+        db = await title.get_daily_titles_by_lang_and_country(db=db,
+                                                              date=self.date,
+                                                              lang=self.lang,
+                                                              country=self.country)
+        return db
     def process_daily_data(self, data: list):
         entities = self._entity_extractor(data)
         logger.debug('Calculating most common')

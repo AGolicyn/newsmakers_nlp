@@ -31,9 +31,12 @@ async def main():
 
                 logger.debug(f'Start multiprocessing with {pool._max_workers} workers')
                 for country in SUPPORTED_COUNTRIES:
+                    logger.debug(f"Start for {country}")
                     prc = Processor(country)
+                    logger.debug("Object Processor created")
                     data = await prc.get_data(db=db)
                     logger.debug("Before appending", data)
+                    logger.debug(data)
                     tasks.append(loop.run_in_executor(pool, partial(prc.process_daily_data, data)))
                     logger.debug("After appending", data)
                 logger.debug(len(tasks))

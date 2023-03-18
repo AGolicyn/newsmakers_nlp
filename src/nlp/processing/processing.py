@@ -23,6 +23,7 @@ class Processor:
                                                               lang=self.lang,
                                                               country=self.country)
         return db
+
     def process_daily_data(self, data: list):
         entities = self._entity_extractor(data)
         logger.debug('Calculating most common')

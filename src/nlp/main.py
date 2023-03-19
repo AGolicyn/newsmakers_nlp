@@ -30,7 +30,7 @@ async def main():
             # with ProcessPoolExecutor() as pool:
 
             # logger.debug(f'Start multiprocessing with {pool._max_workers} workers')
-        for country in SUPPORTED_COUNTRIES:
+        for country in SUPPORTED_COUNTRIES[1:]:
             logger.debug(f"Start for {country}")
             prc = Processor(country)
             logger.debug("Object Processor created")

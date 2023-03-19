@@ -24,5 +24,4 @@ jobs:
           cd /app/newsmakers/
           docker compose down
           docker compose pull nlp
-          docker compose up -d
-  
+          docker compose --env-file .env.upd up -d

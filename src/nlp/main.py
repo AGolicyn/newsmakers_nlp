@@ -5,7 +5,7 @@ from loguru import logger
 # from functools import partial
 # from concurrent.futures import ProcessPoolExecutor
 
-# from nlp.sockets.subscriber import Subscriber
+from nlp.sockets.subscriber import Subscriber
 from nlp.crud.title import get_day_url_frequency
 from nlp.db.session import AsyncSessionFactory
 from nlp.processing.processing import Processor
@@ -14,12 +14,12 @@ from nlp.processing.settings import SUPPORTED_COUNTRIES
 
 async def main():
     logger.debug('NLP Start serving')
-    # subscriber = Subscriber()
+    subscriber = Subscriber()
 
     while True:
-        # await subscriber.synchronize()
+        await subscriber.synchronize()
         async with AsyncSessionFactory() as db:
-            # await subscriber.receive_json_to_db(db=db)
+            await subscriber.receive_json_to_db(db=db)
             res = await get_day_url_frequency(db=db)
             logger.info(res)
             # loop = asyncio.get_running_loop()
@@ -30,7 +30,7 @@ async def main():
             # with ProcessPoolExecutor() as pool:
 
             # logger.debug(f'Start multiprocessing with {pool._max_workers} workers')
-        for country in SUPPORTED_COUNTRIES[1:]:
+        for country in SUPPORTED_COUNTRIES:
             logger.debug(f"Start for {country}")
             prc = Processor(country)
             logger.debug("Object Processor created")

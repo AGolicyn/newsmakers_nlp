@@ -89,7 +89,6 @@ class Processor:
                 frequencies[name] = len(entities[entity][name])
             yield entity, frequencies, date
 
-    @staticmethod
-    async def insert_data(db: AsyncSession, result: dict):
+    async def insert_data(self, db: AsyncSession, result: dict):
         """Вставить данные базу данных"""
-        await cons.insert_daily_result(db=db, entities=result)
+        await cons.insert_daily_result(db=db, entities=result, date=self.date)

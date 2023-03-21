@@ -45,7 +45,6 @@ async def get_daily_titles_by_lang_and_country(db: AsyncSession,
                                    f"AND data->>'country' = '{country}'"
                                    ))
     result = titles.all()
-    logger.debug(result)
     return result
 
 

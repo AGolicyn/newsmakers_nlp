@@ -1,13 +1,21 @@
 import pytest
 import datetime
 
+from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from nlp.db.session import NewsTitle
 
 from nlp.processing.processing import Processor
-from nlp.crud.title import get_title_by_id, \
-    insert_title, get_daily_titles_by_lang_and_country
+from nlp.crud.title import insert_title, get_daily_titles_by_lang_and_country
 from .data_garbage import ENGLISH_PREPARED_DATA, \
     GERMANY_PREPARED_DATA, RUSSIAN_PREPARED_DATA
+
+
+async def get_title_by_id(db: AsyncSession, id: UUID):
+    title = await db.execute(select(NewsTitle.data['title'])
+                             .where(NewsTitle.id == id))
+    return title.scalar_one()
 
 
 @pytest.mark.asyncio

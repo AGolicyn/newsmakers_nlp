@@ -5,6 +5,13 @@ from nlp.tests.conftest import titles
 import pytest
 from nlp.crud import title, cons
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from nlp.db.session import NewsTitle
+
+
+async def get_titles(db: AsyncSession):
+    ttls = await db.execute(select(NewsTitle))
+    return ttls.all()
 
 
 @pytest.mark.asyncio
@@ -71,7 +78,7 @@ async def test_insert_unique_href_one_day(session: AsyncSession):
     await title.insert_title(db=session, title=test_title)
     await title.insert_title(db=session, title=same_href_but_later)
 
-    result = await title.get_titles(db=session)
+    result = await get_titles(db=session)
 
     assert len(result) == 1
 
@@ -93,7 +100,7 @@ async def test_insert_unique_href_data_different_days(session: AsyncSession):
     await title.insert_title(db=session, title=test_title)
     await title.insert_title(db=session, title=same_href_but_later)
 
-    result = await title.get_titles(db=session)
+    result = await get_titles(db=session)
 
     assert len(result) == 2
 
@@ -115,7 +122,7 @@ async def test_insert_unique_title_different_days(session: AsyncSession):
     await title.insert_title(db=session, title=test_title)
     await title.insert_title(db=session, title=same_title_but_later)
 
-    result = await title.get_titles(db=session)
+    result = await get_titles(db=session)
 
     assert len(result) == 2
 
@@ -135,7 +142,7 @@ async def test_insert_unique_title_one_day(session: AsyncSession):
     await title.insert_title(db=session, title=test_title)
     await title.insert_title(db=session, title=same_title_but_later)
 
-    result = await title.get_titles(db=session)
+    result = await get_titles(db=session)
 
     assert len(result) == 1
 

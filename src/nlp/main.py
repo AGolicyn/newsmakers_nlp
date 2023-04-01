@@ -12,18 +12,16 @@ from nlp.processing.settings import SUPPORTED_COUNTRIES
 async def main():
     logger.debug('NLP Start serving')
     subscriber = Subscriber()
-
-    while True:
-        await subscriber.synchronize()
-        async with AsyncSessionFactory() as db:
-            await subscriber.receive_json_to_db(db=db)
-            parsed = await get_day_url_frequency(db=db)
-            logger.info(parsed)
-            for country in SUPPORTED_COUNTRIES:
-                prc = Processor(country)
-                data = await prc.get_data(db=db)
-                result = prc.process_daily_data(data)
-                await prc.insert_data(db=db, result=result)
+    await subscriber.synchronize()
+    async with AsyncSessionFactory() as db:
+        await subscriber.receive_json_to_db(db=db)
+        parsed = await get_day_url_frequency(db=db)
+        logger.info(parsed)
+        for country in SUPPORTED_COUNTRIES:
+            prc = Processor(country)
+            data = await prc.get_data(db=db)
+            result = prc.process_daily_data(data)
+            await prc.insert_data(db=db, result=result)
 
 
 if __name__ == "__main__":

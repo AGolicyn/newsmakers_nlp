@@ -30,7 +30,7 @@ class Subscriber:
         await self.syncservice.send(b'')
         logger.debug('Subscriber and publisher successfully synchronized')
 
-    async def receive_json_to_db(self, db: AsyncSession):
+    async def receive_to_db(self, db: AsyncSession):
         logger.debug('Receiving data..')
         with suppress(asyncio.CancelledError):
             while True:

@@ -40,7 +40,7 @@ def language_manager(country: str) -> namedtuple:
                     entities={'LOC': Entity.Location.value,
                               'PER': Entity.Person.value,
                               'ORG': Entity.Organization.value},
-                    pipes=["ner", 'lemmatizer', 'parser', 'attribute_ruler'])
+                    pipes=["ner", 'lemmatizer', 'parser', 'attribute_ruler', 'tagger', 'morphologizer'])
     else:
         raise f'{country} NOT IMPLEMENTED'
 

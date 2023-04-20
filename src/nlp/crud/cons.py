@@ -7,14 +7,15 @@ from sqlalchemy.exc import SQLAlchemyError
 from typing import Mapping
 
 
-async def insert_daily_result(db: AsyncSession,
-                              entities: Mapping,
-                              date: datetime.date = datetime.date.today()):
+async def insert_daily_result(
+    db: AsyncSession, entities: Mapping, date: datetime.date = datetime.date.today()
+):
     try:
-        new_res = await db.execute(insert(ConsolidatedData)
-                                   .values(entities=entities,
-                                           date=date)
-                                   .returning(ConsolidatedData))
+        new_res = await db.execute(
+            insert(ConsolidatedData)
+            .values(entities=entities, date=date)
+            .returning(ConsolidatedData)
+        )
         await db.commit()
     except SQLAlchemyError as e:
         await db.rollback()

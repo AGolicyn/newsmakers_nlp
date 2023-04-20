@@ -3,6 +3,7 @@ import asyncio
 from loguru import logger
 
 from nlp.sockets.subscriber import Subscriber
+
 # from nlp.crud.title import get_day_url_frequency
 from nlp.db.session import AsyncSessionFactory
 from nlp.processing.processing import Processor
@@ -10,7 +11,7 @@ from nlp.processing.settings import SUPPORTED_COUNTRIES
 
 
 async def main():
-    logger.debug('NLP Start serving')
+    logger.debug("NLP Start serving")
     subscriber = Subscriber()
     await subscriber.synchronize()
     async with AsyncSessionFactory() as db:
